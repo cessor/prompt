@@ -26,6 +26,18 @@ class NotANumber(ValidationError):
         return f"'{self._value}' is not a number"
 
 
+class NotADate(ValidationError):
+    '''
+    A given value was not a parsable date.
+    '''
+
+    def __init__(self, value):
+        self._value = value
+
+    def __str__(self):
+        return f"'{self._value}' is not a date"
+
+
 class NotInRange(ValidationError):
     '''
     A given value was not within the interval.
@@ -146,6 +158,19 @@ class Number(Requirement):
             return int(string)
         except ValueError:
             raise NotANumber(string)
+
+
+import datetime
+class Date(Requirement):
+    def hint(self):
+        return 'dd.mm.yyyy'
+
+    def meet(self, string):
+        FORMAT = '%d.%m.%Y'
+        try:
+            return datetime.datetime.strptime(string, FORMAT).date()
+        except ValueError:
+            raise NotADate(string)
 
 
 class Between(Requirement):
@@ -330,3 +355,6 @@ class Prompt(object):
         Gets a number from the console
         '''
         return self._prompt(Number())
+
+    def date(self):
+        return self._prompt(Date())
